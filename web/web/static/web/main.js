@@ -5,7 +5,8 @@
 
     data() {
       return {
-        message_id: 0
+        message_id: 0,
+        message_body: ""
       }
     },
 
@@ -90,7 +91,39 @@
         cancel_answer()
         {
             this.message_id = 0;
+        },
+
+
+        add_tag(tag)
+        {
+            const text = prompt("Введите текст:");
+
+            if (!text || text.trim() === "") return;
+
+            const tags = {
+                strong: `[b]${text}[/b] `,
+                italic: `[i]${text}[/i] `,
+                code: `[code]${text}[/code] `,
+                link: `[a href="${text}"]${text}[/a] `
+            };
+
+            if (tags[tag])
+            {
+                this.message_body += tags[tag];
+            }
+
+        },
+
+
+        fix_html_tags(text)
+        {
+            return text
+                .replace(/\[b\](.*?)\[\/b\]/gi, '<strong>$1</strong>')
+                .replace(/\[i\](.*?)\[\/i\]/gi, '<em>$1</em>')
+                .replace(/\[code\](.*?)\[\/code\]/gi, '<pre><code>$1</code></pre>')
+                .replace(/\[a href="(.*?)"\](.*?)\[\/a\]/gi, '<a href="$1">$2</a>');
         }
+
 
     }
 

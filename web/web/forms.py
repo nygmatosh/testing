@@ -12,6 +12,7 @@ class SendCommentForm(forms.Form):
         widget=forms.Textarea(attrs={
             'rows': 5,
             'cols': 40,
-            'placeholder': 'Введите текст комментария...'
+            'placeholder': 'Введите текст комментария...',
+            'v-model': 'message_body'
         })
     )
