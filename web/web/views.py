@@ -3,13 +3,16 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 
 from web.forms import SendCommentForm
+from web.class_comment import CommentControl
+from web.models import *
 
 
 
 def index(request):
 
     data = {
-        "form": SendCommentForm()
+        "comments": CommentControl().get_all(),
+        "form": SendCommentForm(),
     }
 
     return render(request, 'web/index.html', data)
@@ -19,11 +22,16 @@ def index(request):
 
 def send(request):
     if request.method == 'POST':
-        
+
         form = SendCommentForm(request.POST)
 
         if form.is_valid():
-            return JsonResponse({"message": "OK", "status": "allow"})
+
+            add = CommentControl().add_comment(request)
+            
+            if add:
+                return JsonResponse({"message": "Комментарий сохранен", "status": "allow"})
+            
         return JsonResponse({"message": "Форма невалидна...", "status": "deny"})
 
     return JsonResponse({"message": "Hello", "status": "allow"})

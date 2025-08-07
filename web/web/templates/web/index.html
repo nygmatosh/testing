@@ -2,6 +2,8 @@
 
 {% block content %}
 
+    {{ comments }}
+
     <form 
         method="POST"
         @submit.prevent="submitForm"
