@@ -1,0 +1,20 @@
+{% extends "web/wrapper.html" %}
+
+{% block content %}
+
+    <form 
+        method="POST"
+        @submit.prevent="submitForm"
+        id="send_comment_form"
+    >
+
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit">Отправить</button>
+
+    </form>
+
+    <div id="send_comment_form_response" class="mt-2"></div>
+
+{% endblock %}

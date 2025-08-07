@@ -1,0 +1,38 @@
+services:
+
+  web-core:
+    container_name: web-core
+    build:
+      context: ./configs/web/
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./web/:/usr/src/app/web/
+    ports:
+      - "80:80"
+    networks:
+      autod_aster_3:
+        ipv4_address: "172.22.0.11"
+      
+
+
+
+#docker network create --gateway 172.22.0.1 --subnet 172.22.0.0/16 autod_aster_3
+networks:
+  autod_aster_3:
+    external: true
+    name: autod_aster_3
+    ipam:
+      driver: bridge
+      config:
+        - subnet: "172.22.0.0/16"
+        - gateway: "172.22.0.1"
+
+
+
+
+#volumes:
+  #fs_dbdata:
+  #  driver: local
+  #ast_rabbitmq_data:
+  #  driver: local
