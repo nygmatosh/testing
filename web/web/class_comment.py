@@ -41,6 +41,10 @@ class CommentControl:
             username = request.POST.get("username")
             comment = request.POST.get("comment")
 
+            if not username or not comment:
+                self._log(f"add_comment -> данные не пришли")
+                return False
+
             Comment.objects.create(user=username, text=comment)
             return True
         
