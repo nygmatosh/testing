@@ -5,7 +5,7 @@
 
     data() {
       return {
-
+        message_id: 0
       }
     },
 
@@ -76,6 +76,20 @@
 
             document.getElementById('send_comment_form_response').innerHTML = "";
 
+        },
+
+
+
+        answer_message(id)
+        {
+            this.message_id = id;
+            console.log(this.message_id);
+        },
+
+
+        cancel_answer()
+        {
+            this.message_id = 0;
         }
 
     }

@@ -2,21 +2,81 @@
 
 {% block content %}
 
-    {{ comments }}
 
-    <form 
-        method="POST"
-        @submit.prevent="submitForm"
-        id="send_comment_form"
-    >
+<div class="container mt-3">
+  <div class="row">
 
-        {% csrf_token %}
-        {{ form.as_p }}
 
-        <button type="submit">Отправить</button>
+    <div class="col-lg-6 col-12">
+       {% for comment in comments %}
+            <div style="margin-left: {{ level|default:0 }}px;">
 
-    </form>
+                <div class="card mb-2">
+                    <div class="card-header">
+                        
+                        <span class="me-2"> 
+                            <strong> {{ comment.user }} </strong> 
+                        </span> 
 
-    <div id="send_comment_form_response" class="mt-2"></div>
+                        {{ comment.created_at|date:"d.m.Y H:i:s" }}
+
+                        <span 
+                            @click="answer_message({{comment.id}})"
+                        > 
+                            ответить 
+                        </span>
+
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ comment.text }}</p>
+                    </div>
+                </div>
+
+                {% if comment.replies.count %}
+                    {% include "comment_partial.html" with comments=comment.replies.all level=level|add:20 %}
+                {% endif %}
+
+            </div>
+        {% endfor %}
+    </div>
+
+
+    <div class="col-lg-6 col-12">
+
+        <div 
+            v-if="message_id > 0"
+            class="p-3 my-2 border rounded bg-light text-center fw-semibold"
+        >
+            Ответ на комментарий #
+            <span class="me-3" v-text="message_id"></span>
+            <span 
+                @click="cancel_answer()"
+                style="cursor:pointer;"
+            > 
+                <small>[сброс ответа]</small> 
+            </span>
+        </div>
+
+
+        <form 
+            method="POST"
+            @submit.prevent="submitForm"
+            id="send_comment_form"
+        >
+
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            <button type="submit">Отправить</button>
+
+        </form>
+
+        <div id="send_comment_form_response" class="mt-2"></div>
+    </div>
+
+
+  </div>
+</div>
+
 
 {% endblock %}
