@@ -10,9 +10,18 @@ class SendCommentForm(forms.Form):
         label="Комментарий",
         required=True,
         widget=forms.Textarea(attrs={
+            'class': 'form-control form-control-sm w-100',
             'rows': 5,
             'cols': 40,
             'placeholder': 'Введите текст комментария...',
             'v-model': 'message_body'
+        })
+    )
+    file = forms.FileField(
+        label="Прикрепить файл",
+        required=False,
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'form-control form-control-sm w-100',
+            'accept': ".txt,.png,.jpg,.jpeg"
         })
     )

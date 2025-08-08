@@ -10,8 +10,12 @@ from web.models import *
 
 def index(request):
 
+    comments = CommentControl()
+
     data = {
-        "comments": CommentControl().get_all(),
+        "comments": comments.get_all(),
+        "level": 0,
+        "is_root": False,
         "form": SendCommentForm(),
     }
 

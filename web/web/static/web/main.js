@@ -6,7 +6,8 @@
     data() {
       return {
         message_id: 0,
-        message_body: ""
+        message_body: "",
+        comment_id: []
       }
     },
 
@@ -65,17 +66,13 @@
             let response = await fetch(
                 'send/', {
                     method: 'POST',
-                    body: form,
-                    headers:
-                    {
-                        'X-CSRFToken': csrftoken
-                    }
+                    body: form
                 }
             );
 
             let res = await response.json();
 
-            document.getElementById('send_comment_form_response').innerHTML = "";
+            document.getElementById('send_comment_form_response').innerHTML = `${res.message}`;
 
         },
 

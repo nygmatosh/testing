@@ -1,5 +1,8 @@
+import os
 from web.models import Users, Comment
+from time import time
 import logging
+from django.utils.text import get_valid_filename
 
 
 logging.basicConfig(
@@ -11,6 +14,8 @@ logging.basicConfig(
 
 class CommentControl:
     def __init__(self):
+        self._save_path = "/usr/src/app/web/web/static/web/files/"
+        self._MAX_FILE_SIZE = 1 * 1024 * 1024
         self._logger = logging.getLogger(__name__)
 
 
@@ -62,18 +67,14 @@ class CommentControl:
 
 
     def _post_data(self, request):
-        try:
-
-            return {
-                "username": request.POST.get("username"),
-                "home_page": request.POST.get("home_page"),
-                "email": request.POST.get("email"),
-                "comment": request.POST.get("comment")
-            }
-        
-        except Exception as e:
-            self._log(f"_post_data -> {e}")
-            return {}
+        return {
+            "username": request.POST.get("username"),
+            "home_page": request.POST.get("home_page"),
+            "email": request.POST.get("email"),
+            "comment": request.POST.get("comment"),
+            "answer_id": request.POST.get("answer_id"),
+            "file": request.FILES.get("file")
+        }
         
 
     
@@ -86,13 +87,63 @@ class CommentControl:
         except Exception as e:
             self._log(f"_find_comment_with_id -> {e}")
             return None
+        
+
+    
+
+    def _answer_comment(self, data):
+        try:
+
+            id = data.get("answer_id")
+            comment = self._find_comment_with_id(id)
+
+            if not comment:
+                self._log(f"_answer_comment -> [комментарий не найден]")
+                return False
+
+            username = data.get("username")
+            text = data.get("comment")#
+
+            Comment.objects.create(user=username, text=text, parent=comment)
+            return True
+
+        except Exception as e:
+            self._log(f"_answer_comment -> {e}")
+            return False
+        
+
+
+
+    def _save_file_on_server(self, file):
+        try:
+
+            timestamp = int(time())
+            filename = f"{timestamp}_{get_valid_filename(file.name)}"
+            os.makedirs(self._save_path, exist_ok=True)
+
+            if file.size > self._MAX_FILE_SIZE:
+                self._log(f"_save_file_on_server -> размер файла {filename} превышает лимит {self._MAX_FILE_SIZE}")
+                return False
+            
+            path = os.path.join(self._save_path, filename)
+
+            with open(path, 'wb+') as destination:
+                for chunk in file.chunks():
+                    destination.write(chunk)
+
+            return path
+
+        except Exception as e:
+            self._log(f"_save_file_on_server -> {e}")
+            return ""
+
 
 
 
     def get_all(self):
         try:
 
-            return Comment.objects.all()
+            return Comment.objects.filter(parent=None).prefetch_related('replies').order_by('-id')
         
         except Exception as e:
             self._log(f"get_all -> {e}")
@@ -101,31 +152,33 @@ class CommentControl:
 
 
 
-    def add_comment(self, request):
+    def add_comment(self, request) -> bool:
         try:
 
             data = self._post_data(request)
+            path = ""
 
             username = data.get("username")
             comment = data.get("comment")
+            answer_id = int(data.get("answer_id", 0))
+            file = data.get("file")
 
             if not self._if_exists_user(data):
                 self._save_user_in_model(data)
+
+            if file:
+                path = self._save_file_on_server(file)
+
+            if answer_id > 0:
+                return self._answer_comment(data)
 
             if not username or not comment:
                 self._log(f"add_comment -> данные не пришли")
                 return False
 
-            Comment.objects.create(user=username, text=comment)
+            Comment.objects.create(user=username, text=comment, file_path=path)
             return True
         
         except Exception as e:
             self._log(f"add_comment -> {e}")
             return False
-        
-
-
-    
-
-    def answer_comment(self, request):
-        pass

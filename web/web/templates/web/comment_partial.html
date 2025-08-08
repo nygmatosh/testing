@@ -1,5 +1,34 @@
 {% for comment in comments %}
-   ...
+
+    <div class="comment card mb-2" style="margin-left: {{ level|default:0 }}px;" id="sub_comment_{{ comment.id }}">
+      <div class="card-header bg-info">
+                             
+         <span class="me-2">
+            <strong> {{ comment.user }} </strong> 
+         </span> 
+
+         {{ comment.created_at|date:"d.m.Y H:i:s" }}
+
+         <span 
+            @click="answer_message({{comment.id}})"
+         > 
+            ответить 
+         </span>
+
+      </div>
+
+      <div class="card-body">
+         <p class="card-text" v-html="fix_html_tags('{{ comment.text }}')"></p>
+      </div>
+
+    </div>
+
+
+      {% if comment.replies.exists %}
+         {% include "web/comment_partial.html" with comments=comment.replies.all level=level|default:0|add:20 is_root=True %}
+      {% endif %}
+
+   
 {% empty %}
-   <!-- Можно не выводить ничего или сообщение -->
+   <p>Комментариев пока нет.</p>
 {% endfor %}

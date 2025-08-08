@@ -8,32 +8,37 @@
 
 
     <div class="col-lg-6 col-12">
+
        {% for comment in comments %}
             <div style="margin-left: {{ level|default:0 }}px;">
+                
+                {% if not comment.parent_id %}
+                    <div class="card mb-2">
+                        <div class="card-header bg-warning">
+                                
+                            <span class="me-2"> 
+                                <strong> {{ comment.user }} </strong> 
+                            </span> 
 
-                <div class="card mb-2">
-                    <div class="card-header">
-                        
-                        <span class="me-2"> 
-                            <strong> {{ comment.user }} </strong> 
-                        </span> 
+                            {{ comment.created_at|date:"d.m.Y H:i:s" }}
 
-                        {{ comment.created_at|date:"d.m.Y H:i:s" }}
+                            <span 
+                                @click="answer_message({{comment.id}})"
+                            > 
+                                ответить 
+                            </span>
 
-                        <span 
-                            @click="answer_message({{comment.id}})"
-                        > 
-                            ответить 
-                        </span>
+                        </div>
+
+                        <div class="card-body">
+                            <p class="card-text" v-html="fix_html_tags('{{ comment.text }}')"></p>
+                        </div>
 
                     </div>
-                    <div class="card-body">
-                        <p class="card-text" v-html="fix_html_tags('{{ comment.text }}')"></p>
-                    </div>
-                </div>
+                {% endif %}
 
-                {% if comment.replies.count %}
-                    {% include "comment_partial.html" with comments=comment.replies.all level=level|add:20 %}
+                {% if comment.replies.all %}
+                    {% include "web/comment_partial.html" with comments=comment.replies.all level=level|add:20 is_root=is_root %}
                 {% endif %}
 
             </div>
@@ -62,10 +67,16 @@
             method="POST"
             @submit.prevent="submitForm"
             id="send_comment_form"
+            enctype="multipart/form-data"
         >
 
             {% csrf_token %}
-            {{ form.as_p }}
+            <input type="hidden" name="answer_id" :value="message_id">
+
+            {{ form.username }}
+            {{ form.email }}
+            {{ form.home_page }}
+            {{ form.captcha }}
 
             <div id="tag_panel" class="d-flex flex-wrap gap-2 align-items-start p-2 border rounded bg-white"> 
                 <span @click="add_tag('strong')" class="me-2"> <b>B</b> </span>
@@ -74,6 +85,7 @@
                 <span @click="add_tag('code')"> Code </span>
             </div>
             {{ form.comment }}
+            {{ form.file }}
 
             <button type="submit">Отправить</button>
 
