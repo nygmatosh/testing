@@ -56,7 +56,7 @@
         {
             const comment_id = res.data.id;
             const comment_answer_id = this.message_id > 0 ? res.data.answer_id : 0;
-            const id_block = this.message_id > 0 ? `sub_comment_${comment_id}` : `comment_${comment_id}`;
+            const id_block = this.message_id > 0 ? `comment_${comment_answer_id}` : `added_new_comment`;
             const root_block = document.getElementById(id_block);
 
             const newElement = document.createElement('div');
@@ -88,7 +88,7 @@
                 </div>
                 `;
 
-                newElement.id = id_block;
+                newElement.id = `sub_comment_${comment_id}`;
                 newElement.style.border = '1px solid red; margin-bottom:20px;';
 
                 newElement.querySelector('.reply-btn').addEventListener('click', () => {
@@ -127,6 +127,8 @@
 
             if (res.status == "allow")
             {
+
+                this.make_html_block_for_new_comment(res);
                 
                 if (this.message_id == 0)
                 {
