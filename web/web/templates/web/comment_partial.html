@@ -7,12 +7,15 @@
             <strong> {{ comment.user }} </strong> 
          </span> 
 
-         {{ comment.created_at|date:"d.m.Y H:i:s" }}
+
+         <span class="me-2">
+            {{ comment.created_at|date:"d.m.Y H:i:s" }}
+         </span>
 
          <span 
             @click="answer_message({{comment.id}})"
          > 
-            ответить 
+            <i class="bi bi-reply"></i> ответить 
          </span>
 
       </div>
