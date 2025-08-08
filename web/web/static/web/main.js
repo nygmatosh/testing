@@ -7,7 +7,8 @@
       return {
         message_id: 0,
         message_body: "",
-        comment_id: []
+        comment_id: [],
+        level: 0
       }
     },
 
@@ -78,10 +79,12 @@
 
 
 
-        answer_message(id)
+        answer_message(id, lvl)
         {
             this.message_id = id;
+            this.level = lvl;
             console.log(this.message_id);
+            console.log(this.level);
         },
 
 

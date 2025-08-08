@@ -13,7 +13,9 @@
          </span>
 
          <span 
-            @click="answer_message({{comment.id}})"
+            @click="answer_message({{comment.id}}, {{level}})"
+            data-bs-toggle="modal" 
+            data-bs-target="#staticBackdrop-add-comment"
          > 
             <i class="bi bi-reply"></i> ответить 
          </span>

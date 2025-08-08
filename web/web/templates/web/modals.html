@@ -1,0 +1,63 @@
+<div class="modal fade" id="staticBackdrop-add-comment" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-light">
+
+        <h1 
+            class="modal-title fs-5" 
+            id="staticBackdropLabel"
+        >
+            <div 
+                v-if="message_id > 0"
+                class="my-2 text-center fw-semibold"
+            >
+                Ответ на комментарий #
+                <span class="me-3" v-text="message_id"></span>
+            </div>
+            <div v-else="message_id == 0">
+                Новый комментарий
+            </div>
+        </h1>
+
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form 
+            method="POST"
+            @submit.prevent="submitForm"
+            id="send_comment_form"
+            enctype="multipart/form-data"
+        >
+
+            {% csrf_token %}
+            <input type="hidden" name="answer_id" :value="message_id">
+            <input type="hidden" name="level" :value="level">
+
+            <div class="mb-2"> </div>
+
+            <div class="mb-2"> {{ form.username }} </div>
+            <div class="mb-2"> {{ form.email }} </div>
+            <div class="mb-2"> {{ form.home_page }} </div>
+            <div class="mb-2"> {{ form.captcha }} </div>
+
+            <div id="tag_panel" class="d-flex flex-wrap gap-2 align-items-start p-2 border rounded bg-white"> 
+                <span @click="add_tag('strong')" class="me-2"> <b>B</b> </span>
+                <span @click="add_tag('italic')" class="me-2"> <i>I</i> </span>
+                <span @click="add_tag('link')" class="me-2"> Link </span>
+                <span @click="add_tag('code')"> Code </span>
+            </div>
+
+            <div class="mb-2"> {{ form.comment }} </div>
+            <div class="mb-2"> {{ form.file }} </div>
+
+            <button type="submit" class="btn btn-sm btn-success">Отправить</button>
+
+        </form>
+
+        <div id="send_comment_form_response" class="mt-2"></div>
+      </div>
+
+    </div>
+  </div>
+</div>

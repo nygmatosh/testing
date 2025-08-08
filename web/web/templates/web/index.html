@@ -1,6 +1,7 @@
 {% extends "web/wrapper.html" %}
 
 {% block content %}
+    {% include "web/modals.html" %}
 
 
 <div class="container mt-3">
@@ -9,8 +10,20 @@
 
     <div class="col-lg-6 col-12">
 
+    <div 
+        class="alert alert-primary text-center fs-5 shadow-sm" 
+        role="alert"
+        data-bs-toggle="modal" 
+        data-bs-target="#staticBackdrop-add-comment"
+        style="cursor: pointer;"
+        @click="cancel_answer()"
+    >
+        <i class="bi bi-chat-dots me-2"></i> Оставьте тут свой комментарий
+    </div>
+
+
        {% for comment in comments %}
-            <div style="margin-left: {{ level|default:0 }}px;">
+            <div id="comment_{{comment.id}}" style="margin-left: {{ level|default:0 }}px;">
                 
                 {% if not comment.parent_id %}
                     <div class="card mb-2">
@@ -25,7 +38,9 @@
                             </span>
 
                             <span 
-                                @click="answer_message({{comment.id}})"
+                                @click="answer_message({{comment.id}}, {{level}})"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#staticBackdrop-add-comment"
                             > 
                                 <i class="bi bi-reply"></i> ответить 
                             </span>
@@ -48,6 +63,7 @@
     </div>
 
 
+    <!--
     <div class="col-lg-6 col-12">
 
         <div 
@@ -95,6 +111,7 @@
 
         <div id="send_comment_form_response" class="mt-2"></div>
     </div>
+    -->
 
 
   </div>
