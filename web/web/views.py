@@ -34,7 +34,7 @@ def send(request):
             add = CommentControl().add_comment(request)
             
             if add:
-                return JsonResponse({"message": "Комментарий сохранен", "status": "allow"})
+                return JsonResponse({"message": "Комментарий сохранен", "data": add, "status": "allow"})
             
         return JsonResponse({"message": "Форма невалидна...", "status": "deny"})
 

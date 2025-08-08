@@ -89,6 +89,28 @@ class CommentControl:
             return None
         
 
+
+
+    def _find_comment_id(self, data, path):
+        try:
+
+            username = data.get("username")
+            comment = data.get("comment")
+
+            obj = Comment.objects.filter(
+                user=username, 
+                text=comment, 
+                file_path=path
+            ).last()
+
+            if obj:
+                return obj.id
+            return 0
+        
+        except Exception as e:
+            self._log(f"_find_comment_id -> {e}")
+            return 0
+
     
 
     def _answer_comment(self, data):
@@ -102,9 +124,18 @@ class CommentControl:
                 return False
 
             username = data.get("username")
-            text = data.get("comment")#
+            text = data.get("comment")
 
-            Comment.objects.create(user=username, text=text, parent=comment)
+            com = Comment.objects.create(user=username, text=text, parent=comment)
+
+            return {
+                "id": com.id,
+                "answer_id": id,
+                "created_at": com.created_at,
+                "user": username,
+                "comment": text
+            }
+        
             return True
 
         except Exception as e:
@@ -176,8 +207,17 @@ class CommentControl:
                 self._log(f"add_comment -> данные не пришли")
                 return False
 
-            Comment.objects.create(user=username, text=comment, file_path=path)
-            return True
+            com = Comment.objects.create(user=username, text=comment, file_path=path)
+        
+            return {
+                "id": com.id,
+                "created_at": com.created_at,
+                "user": username,
+                "comment": comment,
+                "file": path
+            }
+
+            return self._find_comment_id(data, path)
         
         except Exception as e:
             self._log(f"add_comment -> {e}")

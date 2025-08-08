@@ -52,6 +52,57 @@
 
 
 
+        make_html_block_for_new_comment(res)
+        {
+            const comment_id = res.data.id;
+            const comment_answer_id = this.message_id > 0 ? res.data.answer_id : 0;
+            const id_block = this.message_id > 0 ? `sub_comment_${comment_id}` : `comment_${comment_id}`;
+            const root_block = document.getElementById(id_block);
+
+            const newElement = document.createElement('div');
+
+            newElement.innerHTML = `
+                <div class="card mb-2">
+                    <div class="card-header bg-warning">
+                        <span class="me-2">
+                            <i class="bi bi-person-circle me-1"></i>
+                            <strong>${res.data.user}</strong> 
+                        </span> 
+
+                        <span class="me-2">
+                            <small>${res.data.created_at}</small>
+                        </span>
+
+                        <span 
+                            class="reply-btn"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#staticBackdrop-add-comment"
+                        > 
+                            <i class="bi bi-reply"></i> ответить 
+                        </span>
+                    </div>
+
+                    <div class="card-body">
+                        <p class="card-text">${res.data.comment}</p>
+                    </div>
+                </div>
+                `;
+
+                newElement.id = id_block;
+                newElement.style.border = '1px solid red; margin-bottom:20px;';
+
+                newElement.querySelector('.reply-btn').addEventListener('click', () => {
+                    this.answer_message(comment_id, 0);
+                });
+
+                root_block.parentNode.insertBefore(newElement, root_block.nextSibling);
+
+                document.getElementById("send_comment_form").reset();
+                this.message_body = "";
+
+        },
+
+
         async submitForm()
         {
             const form = new FormData(document.getElementById('send_comment_form'));
@@ -73,6 +124,61 @@
 
             let res = await response.json();
 
+
+            if (res.status == "allow")
+            {
+                
+                if (this.message_id == 0)
+                {
+                    const comment_id = res.data.id;
+                    const root_block = document.getElementById("added_new_comment");
+
+                    const newElement = document.createElement('div');
+
+                    newElement.innerHTML = `
+                        <div class="card mb-2">
+                            <div class="card-header bg-warning">
+                                <span class="me-2">
+                                    <i class="bi bi-person-circle me-1"></i>
+                                    <strong>${res.data.user}</strong> 
+                                </span> 
+
+                                <span class="me-2">
+                                    <small>${res.data.created_at}</small>
+                                </span>
+
+                                <span 
+                                    class="reply-btn"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#staticBackdrop-add-comment"
+                                > 
+                                    <i class="bi bi-reply"></i> ответить 
+                                </span>
+                            </div>
+
+                            <div class="card-body">
+                                <p class="card-text">${res.data.comment}</p>
+                            </div>
+                        </div>
+                    `;
+
+                    newElement.id = `comment_${comment_id}`;
+                    newElement.style.border = '1px solid red; margin-bottom:20px;';
+
+                    newElement.querySelector('.reply-btn').addEventListener('click', () => {
+                        this.answer_message(comment_id, 0);
+                    });
+
+                    root_block.parentNode.insertBefore(newElement, root_block.nextSibling);
+
+                    document.getElementById("send_comment_form").reset();
+                    this.message_body = "";
+
+                    this.make_html_block_for_new_comment(res);
+
+                }
+            }
+
             document.getElementById('send_comment_form_response').innerHTML = `${res.message}`;
 
         },
@@ -83,8 +189,6 @@
         {
             this.message_id = id;
             this.level = lvl;
-            console.log(this.message_id);
-            console.log(this.level);
         },
 
 
