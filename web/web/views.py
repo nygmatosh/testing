@@ -4,16 +4,22 @@ from django.http import JsonResponse
 
 from web.forms import SendCommentForm
 from web.class_comment import CommentControl
+from django.core.paginator import Paginator
 from web.models import *
 
 
 
 def index(request):
 
-    comments = CommentControl()
+    all = CommentControl().get_all()
+
+    paginator = Paginator(all, 5)
+    page = request.GET.get('page')
+    comments = paginator.get_page(page)
+
 
     data = {
-        "comments": comments.get_all(),
+        "comments": comments,
         "level": 0,
         "is_root": False,
         "form": SendCommentForm(),

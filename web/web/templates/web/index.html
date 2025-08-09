@@ -8,19 +8,72 @@
   <div class="row">
 
 
-    <div class="col-lg-6 col-12">
+    <div class="col-12">
 
-    <div 
-        id="added_new_comment"
-        class="alert alert-primary text-center fs-5 shadow-sm" 
-        role="alert"
-        data-bs-toggle="modal" 
-        data-bs-target="#staticBackdrop-add-comment"
-        style="cursor: pointer;"
-        @click="cancel_answer()"
-    >
-        <i class="bi bi-chat-dots me-2"></i> Оставьте тут свой комментарий
-    </div>
+        <div class="mb-3 card my-3 p-3 text-white bg-primary bg-gradient rounded">
+
+            <div class="mb-2">
+                Страница {{ comments.number }} из {{ comments.paginator.num_pages }}
+            </div>
+
+            <div class="mb-1">
+                {% if comments.has_previous %}
+                    <span class="me-2">
+                        <a href="?page=1">
+                            <i class="bi bi-chevron-double-left"></i> Первая
+                        </a>
+                    </span>
+
+                    <span class="me-2">
+                        <a href="?page={{ comments.previous_page_number }}"> 
+                            <i class="bi bi-arrow-left-circle"></i> Назад
+                        </a>
+                    </span>
+
+                {% endif %}
+            </div>
+
+            <div class="mt-1">
+                {% if comments.has_next %}
+                    <span class="me-2">
+                        <a href="?page={{ comments.next_page_number }}"> 
+                            <i class="bi bi-arrow-right-circle"></i> Вперед 
+                        </a>
+                    </span>
+
+                    <span class="me-2">
+                        <a href="?page={{ comments.paginator.num_pages }}"> 
+                            <i class="bi bi-chevron-double-right"></i> Последняя
+                        </a>
+                    </span>
+                {% endif %}
+            </div>
+
+        </div>
+
+
+    {% if comments.number == 1 %}
+        <div 
+            id="added_new_comment"
+            class="alert alert-primary text-center fs-5 shadow-sm" 
+            role="alert"
+            data-bs-toggle="modal" 
+            data-bs-target="#staticBackdrop-add-comment"
+            style="cursor: pointer;"
+            @click="cancel_answer()"
+        >
+            <i class="bi bi-chat-dots me-2"></i> Оставьте тут свой комментарий
+        </div>
+
+        {% else %}
+        
+        <div class="alert alert-info text-center my-4" role="alert">
+            Чтобы оставить комментарий, перейдите на первую страницу
+        </div>
+
+
+    {% endif %}
+
 
 
        {% for comment in comments %}
@@ -63,57 +116,6 @@
             </div>
         {% endfor %}
     </div>
-
-
-    <!--
-    <div class="col-lg-6 col-12">
-
-        <div 
-            v-if="message_id > 0"
-            class="p-3 my-2 border rounded bg-light text-center fw-semibold"
-        >
-            Ответ на комментарий #
-            <span class="me-3" v-text="message_id"></span>
-            <span 
-                @click="cancel_answer()"
-                style="cursor:pointer;"
-            > 
-                <small>[сброс ответа]</small> 
-            </span>
-        </div>
-
-
-        <form 
-            method="POST"
-            @submit.prevent="submitForm"
-            id="send_comment_form"
-            enctype="multipart/form-data"
-        >
-
-            {% csrf_token %}
-            <input type="hidden" name="answer_id" :value="message_id">
-
-            {{ form.username }}
-            {{ form.email }}
-            {{ form.home_page }}
-            {{ form.captcha }}
-
-            <div id="tag_panel" class="d-flex flex-wrap gap-2 align-items-start p-2 border rounded bg-white"> 
-                <span @click="add_tag('strong')" class="me-2"> <b>B</b> </span>
-                <span @click="add_tag('italic')" class="me-2"> <i>I</i> </span>
-                <span @click="add_tag('link')" class="me-2"> Link </span>
-                <span @click="add_tag('code')"> Code </span>
-            </div>
-            {{ form.comment }}
-            {{ form.file }}
-
-            <button type="submit">Отправить</button>
-
-        </form>
-
-        <div id="send_comment_form_response" class="mt-2"></div>
-    </div>
-    -->
 
 
   </div>
