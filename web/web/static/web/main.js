@@ -8,7 +8,8 @@
         message_id: 0,
         message_body: "",
         comment_id: [],
-        level: 0
+        level: 0,
+        message_com_id: ""
       }
     },
 
@@ -56,14 +57,14 @@
         {
             const comment_id = res.data.id;
             const comment_answer_id = this.message_id > 0 ? res.data.answer_id : 0;
-            const id_block = this.message_id > 0 ? `comment_${comment_answer_id}` : `added_new_comment`;
+            const id_block = this.message_id > 0 ? this.message_com_id : `added_new_comment`;
             const root_block = document.getElementById(id_block);
 
             const newElement = document.createElement('div');
 
             newElement.innerHTML = `
                 <div class="card mb-2">
-                    <div class="card-header bg-warning">
+                    <div class="card-header bg-${this.message_id > 0 ? 'warning' : 'info'}">
                         <span class="me-2">
                             <i class="bi bi-person-circle me-1"></i>
                             <strong>${res.data.user}</strong> 
@@ -89,7 +90,8 @@
                 `;
 
                 newElement.id = `sub_comment_${comment_id}`;
-                newElement.style.border = '1px solid red; margin-bottom:20px;';
+                newElement.style = `margin-bottom: 10px; margin-left: ${this.level + 20}px`;
+
 
                 newElement.querySelector('.reply-btn').addEventListener('click', () => {
                     this.answer_message(comment_id, 0);
@@ -187,16 +189,22 @@
 
 
 
-        answer_message(id, lvl)
+        answer_message(id, lvl, sub=0)
         {
             this.message_id = id;
             this.level = lvl;
+
+            console.log(`Message ID: ${this.message_id}`);
+            console.log(`sub: ${sub}`);
+
+            this.message_com_id = sub == 0 ? `comment_${id}` : `sub_comment_${id}`;
         },
 
 
         cancel_answer()
         {
             this.message_id = 0;
+            this.message_com_id = "";
         },
 
 

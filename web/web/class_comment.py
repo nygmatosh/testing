@@ -90,29 +90,7 @@ class CommentControl:
         
 
 
-
-    def _find_comment_id(self, data, path):
-        try:
-
-            username = data.get("username")
-            comment = data.get("comment")
-
-            obj = Comment.objects.filter(
-                user=username, 
-                text=comment, 
-                file_path=path
-            ).last()
-
-            if obj:
-                return obj.id
-            return 0
-        
-        except Exception as e:
-            self._log(f"_find_comment_id -> {e}")
-            return 0
-
     
-
     def _answer_comment(self, data):
         try:
 
