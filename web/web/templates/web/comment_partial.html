@@ -1,6 +1,10 @@
 {% for comment in comments %}
 
-    <div class="comment card mb-2" style="margin-left: {{ level|default:0 }}px;" id="sub_comment_{{ comment.id }}">
+    <div 
+      class="comment card mb-2 shadow-sm" 
+      style="margin-left: {{ level|default:0 }}px;" 
+      id="sub_comment_{{ comment.id }}"
+   >
       <div class="card-header bg-info">
                              
          <span class="me-2">

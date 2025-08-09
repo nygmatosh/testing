@@ -10,7 +10,7 @@
 
     <div class="col-12">
 
-        <div class="mb-3 card my-3 p-3 text-white bg-primary bg-gradient rounded">
+        <div class="mb-3 card my-3 p-3 text-white bg-primary bg-gradient rounded shadow-sm">
 
             <div class="mb-2">
                 Страница {{ comments.number }} из {{ comments.paginator.num_pages }}
@@ -80,7 +80,7 @@
             <div id="comment_{{comment.id}}" style="margin-left: {{ level|default:0 }}px;">
                 
                 {% if not comment.parent_id %}
-                    <div class="card mb-2">
+                    <div class="card mb-2 shadow-sm">
                         <div class="card-header bg-warning">
                                 
                             <span class="me-2"> 
