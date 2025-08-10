@@ -16,6 +16,22 @@ services:
       
 
 
+  ws-server:
+    container_name: ws-server
+    build:
+      dockerfile: Dockerfile
+      context: ./configs/ws/
+    restart: unless-stopped
+    ports:
+      - "8001:8001/tcp"
+    volumes:
+      - ./web/:/usr/src/app/web/
+    networks:
+      autod_aster_3:
+        ipv4_address: "172.22.0.10"
+
+
+
 
 #docker network create --gateway 172.22.0.1 --subnet 172.22.0.0/16 autod_aster_3
 networks:
