@@ -9,14 +9,15 @@
         message_body: "",
         comment_id: [],
         level: 0,
-        message_com_id: ""
+        message_com_id: "",
+        ws_user: ""
       }
     },
 
 
 
     created() {
-
+        this.ws_user = `user_ws_${Date.now()}`;
     },
 
 
