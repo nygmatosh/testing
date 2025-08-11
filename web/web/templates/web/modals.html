@@ -32,6 +32,7 @@
 
             {% csrf_token %}
             <input type="hidden" name="answer_id" :value="message_id">
+            <input type="hidden" name="ws_user" :value="ws_user">
             <input type="hidden" name="level" :value="level">
 
             <div class="mb-2"> </div>

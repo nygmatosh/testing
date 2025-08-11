@@ -2,7 +2,10 @@ import os
 from web.models import Users, Comment
 from time import time
 import logging
+from datetime import datetime
+
 from django.utils.text import get_valid_filename
+from web.class_rabbit_mq_sender import RMQ
 
 
 logging.basicConfig(
@@ -16,6 +19,7 @@ class CommentControl:
     def __init__(self):
         self._save_path = "/usr/src/app/web/web/static/web/files/"
         self._MAX_FILE_SIZE = 1 * 1024 * 1024
+        self._rabbit = RMQ()
         self._logger = logging.getLogger(__name__)
 
 
@@ -73,6 +77,7 @@ class CommentControl:
             "email": request.POST.get("email"),
             "comment": request.POST.get("comment"),
             "answer_id": request.POST.get("answer_id"),
+            "ws_user": request.POST.get("ws_user"),
             "file": request.FILES.get("file")
         }
         
@@ -90,7 +95,19 @@ class CommentControl:
         
 
 
-    
+
+    def _date_to_human(self, dt):
+        try:
+
+            return dt.strftime("%d.%m.%Y %H:%M:%S")
+        
+        except Exception as e:
+            self._log(f"_date_to_human -> {e}")
+            return dt
+
+
+
+
     def _answer_comment(self, data):
         try:
 
@@ -109,12 +126,22 @@ class CommentControl:
             return {
                 "id": com.id,
                 "answer_id": id,
-                "created_at": com.created_at,
+                "created_at": self._date_to_human(com.created_at),
                 "user": username,
-                "comment": text
+                "comment": text,
+                "ws_user": data.get("ws_user"),
+                "file": ""
             }
         
-            return True
+            #self._rabbit.send({
+            #    "user": username,
+            #    "comment": text,
+            #    "file": "",
+            #    "answer_id": id,
+            #    "ws_user": data.get("ws_user")
+            #})
+
+            #return True
 
         except Exception as e:
             self._log(f"_answer_comment -> {e}")
@@ -185,17 +212,29 @@ class CommentControl:
                 self._log(f"add_comment -> данные не пришли")
                 return False
 
-            com = Comment.objects.create(user=username, text=comment, file_path=path)
+
+            #com = Comment.objects.create(user=username, text=comment, file_path=path)
         
-            return {
-                "id": com.id,
-                "created_at": com.created_at,
+            #return {
+            #    "id": com.id,
+            #    "created_at": self._date_to_human(com.created_at),
+            #    "user": username,
+            #    "comment": comment,
+            #    "file": path,
+            #    "answer_id": 0,
+            #    "ws_user": data.get("ws_user")
+            #}
+        
+            self._rabbit.send({
                 "user": username,
                 "comment": comment,
-                "file": path
-            }
+                "file": path,
+                "answer_id": 0,
+                "ws_user": data.get("ws_user")
+            })
 
-            return self._find_comment_id(data, path)
+            return True
+
         
         except Exception as e:
             self._log(f"add_comment -> {e}")

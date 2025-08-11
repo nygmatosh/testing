@@ -13,7 +13,7 @@ def index(request):
 
     all = CommentControl().get_all()
 
-    paginator = Paginator(all, 5)
+    paginator = Paginator(all, 25)
     page = request.GET.get('page')
     comments = paginator.get_page(page)
 
@@ -40,7 +40,7 @@ def send(request):
             add = CommentControl().add_comment(request)
             
             if add:
-                return JsonResponse({"message": "Комментарий сохранен", "data": add, "status": "allow"})
+                return JsonResponse({"message": "Выполняется обработка комментария", "status": "allow"})
             
         return JsonResponse({"message": "Форма невалидна...", "status": "deny"})
 

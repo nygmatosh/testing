@@ -1,1 +1,5 @@
 websockets==10.0
+pika
+aio_pika
+django
+django-simple-captcha

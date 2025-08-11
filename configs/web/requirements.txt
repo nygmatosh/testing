@@ -1,3 +1,4 @@
 django
 django-simple-captcha
 gunicorn
+pika

@@ -33,6 +33,26 @@ services:
 
 
 
+  rabbit-mq:
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    container_name: rabbit-mq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: root
+      RABBITMQ_DEFAULT_PASS: root1234
+    networks:
+      autod_aster_3:
+        ipv4_address: "172.22.0.9"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+
+
+
+
 #docker network create --gateway 172.22.0.1 --subnet 172.22.0.0/16 autod_aster_3
 networks:
   autod_aster_3:
@@ -47,8 +67,8 @@ networks:
 
 
 
-#volumes:
+volumes:
   #fs_dbdata:
   #  driver: local
-  #ast_rabbitmq_data:
-  #  driver: local
+  rabbitmq_data:
+    driver: local
