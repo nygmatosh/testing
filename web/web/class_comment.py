@@ -29,7 +29,6 @@ class CommentControl:
 
 
 
-
     def _if_exists_user(self, data):
         try:
 
@@ -82,73 +81,6 @@ class CommentControl:
         }
         
 
-    
-
-    def _find_comment_with_id(self, id):
-        try:
-
-            return Comment.objects.get(id=id)
-        
-        except Exception as e:
-            self._log(f"_find_comment_with_id -> {e}")
-            return None
-        
-
-
-
-    def _date_to_human(self, dt):
-        try:
-
-            return dt.strftime("%d.%m.%Y %H:%M:%S")
-        
-        except Exception as e:
-            self._log(f"_date_to_human -> {e}")
-            return dt
-
-
-
-
-    def _answer_comment(self, data):
-        try:
-
-            id = data.get("answer_id")
-            comment = self._find_comment_with_id(id)
-
-            if not comment:
-                self._log(f"_answer_comment -> [комментарий не найден]")
-                return False
-
-            username = data.get("username")
-            text = data.get("comment")
-
-            com = Comment.objects.create(user=username, text=text, parent=comment)
-
-            return {
-                "id": com.id,
-                "answer_id": id,
-                "created_at": self._date_to_human(com.created_at),
-                "user": username,
-                "comment": text,
-                "ws_user": data.get("ws_user"),
-                "file": ""
-            }
-        
-            #self._rabbit.send({
-            #    "user": username,
-            #    "comment": text,
-            #    "file": "",
-            #    "answer_id": id,
-            #    "ws_user": data.get("ws_user")
-            #})
-
-            #return True
-
-        except Exception as e:
-            self._log(f"_answer_comment -> {e}")
-            return False
-        
-
-
 
     def _save_file_on_server(self, file):
         try:
@@ -196,7 +128,7 @@ class CommentControl:
 
             username = data.get("username")
             comment = data.get("comment")
-            answer_id = int(data.get("answer_id", 0))
+            answer_id = int(data.get("answer_id"))
             file = data.get("file")
 
             if not self._if_exists_user(data):
@@ -205,31 +137,15 @@ class CommentControl:
             if file:
                 path = self._save_file_on_server(file)
 
-            if answer_id > 0:
-                return self._answer_comment(data)
-
             if not username or not comment:
                 self._log(f"add_comment -> данные не пришли")
                 return False
-
-
-            #com = Comment.objects.create(user=username, text=comment, file_path=path)
-        
-            #return {
-            #    "id": com.id,
-            #    "created_at": self._date_to_human(com.created_at),
-            #    "user": username,
-            #    "comment": comment,
-            #    "file": path,
-            #    "answer_id": 0,
-            #    "ws_user": data.get("ws_user")
-            #}
         
             self._rabbit.send({
                 "user": username,
                 "comment": comment,
                 "file": path,
-                "answer_id": 0,
+                "answer_id": answer_id,
                 "ws_user": data.get("ws_user")
             })
 

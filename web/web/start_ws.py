@@ -12,7 +12,6 @@ import django
 django.setup()
 
 from .models import Comment
-from .class_comment import CommentControl
 
 
 logging.basicConfig(
@@ -107,8 +106,15 @@ class WS:
 
 
 
-    async def _find_comment_with_id(self, id):
-        return 0
+    @sync_to_async
+    def _find_comment_with_id(self, id):
+        try:
+
+            return Comment.objects.get(id=id)
+        
+        except Exception as e:
+            self._log(f"_find_comment_with_id -> {e}")
+            return None
 
 
 
@@ -120,7 +126,7 @@ class WS:
             ws_user = data.get("ws_user")
             comment = data.get("comment")
             file = data.get("file")
-            answer_id = data.get("answer_id", 0)
+            answer_id = data.get("answer_id")
             parent = None if answer_id == 0 else await self._find_comment_with_id(answer_id)
 
         

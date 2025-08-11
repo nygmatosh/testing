@@ -29,19 +29,24 @@
             const data = JSON.parse(event.data);
             console.log('Полученный JSON:', data);
 
-            const response_text = data.status == "allow" ? "Комментарий успешно добавлен" : "Ошибка при добавлении комментария";
-            const text_style = data.status == "allow" ? "text-success" : "text-danger";
-
-            if (data.status == "allow")
+            if ("status" in data)
             {
-                this.make_html_block_for_new_comment(data);
-            }
+                const icon = this.response_status_icon(data);
+                
+                const response_text = data.status == "allow" ? "Комментарий успешно добавлен" : "Ошибка при добавлении комментария";
+                const text_style = data.status == "allow" ? "text-success" : "text-danger";
 
-            document.getElementById("send_comment_form_response").innerHTML = `
-                <span class='${text_style}'> 
-                    <strong>${response_text}</strong> 
-                </span>
-            `;
+                if (data.status == "allow")
+                {
+                    this.make_html_block_for_new_comment(data);
+                }
+
+                document.getElementById("send_comment_form_response").innerHTML = `
+                    <span class='${text_style}'> 
+                        ${icon} <strong>${response_text}</strong> 
+                    </span>
+                `;
+            }
 
         };
 
@@ -90,6 +95,13 @@
 
 
 
+        response_status_icon(res)
+        {
+            return res.status == "allow" ? "🟢" : "🔴";
+        },
+
+
+        
         make_html_block_for_new_comment(res)
         {
             const comment_id = res.id; //res.data.id;
@@ -121,7 +133,7 @@
                     </div>
 
                     <div class="card-body">
-                        <p class="card-text">${res.comment}</p>
+                        <p> ${this.fix_html_tags(res.comment)} </p>
                     </div>
                 </div>
                 `;
@@ -143,10 +155,11 @@
         },
 
 
+
+
         async submitForm()
         {
             const form = new FormData(document.getElementById('send_comment_form'));
-            const csrftoken = this.getCookie('csrftoken');
 
             document.getElementById('send_comment_form_response').innerHTML = `
                 <span class="text-success">
@@ -164,12 +177,13 @@
 
             let res = await response.json();
 
-            if (res.status == "allow")
-            {
-                this.make_html_block_for_new_comment(res);
-            }
+            const icon = this.response_status_icon(res);
 
-            document.getElementById('send_comment_form_response').innerHTML = `${res.message}`;
+            document.getElementById('send_comment_form_response').innerHTML = `
+                <span class="text-info"> 
+                    ${icon} ${res.message} 
+                </span>
+            `;
 
         },
 
@@ -184,7 +198,9 @@
             console.log(`sub: ${sub}`);
 
             this.message_com_id = sub == 0 ? `comment_${id}` : `sub_comment_${id}`;
+            document.getElementById("send_comment_form_response").innerHTML = "";
         },
+
 
 
         cancel_answer()
@@ -192,6 +208,7 @@
             this.message_id = 0;
             this.message_com_id = "";
         },
+
 
 
         add_tag(tag)
