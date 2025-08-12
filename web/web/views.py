@@ -45,3 +45,9 @@ def send(request):
         return JsonResponse({"message": "Форма невалидна...", "status": "deny"})
 
     return JsonResponse({"message": "Hello", "status": "allow"})
+
+
+
+
+def get_img(request, filename):
+    return CommentControl().get_image(filename)

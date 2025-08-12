@@ -109,6 +109,25 @@
             const new_block_id = this.message_id > 0 ? `sub_comment_${comment_id}` : `comment_${comment_id}`;
             const root_block = document.getElementById(id_block);
 
+            const file_block = res.file.length > 0 
+            ? 
+            `
+                <div class="mt-1 mb-1">
+                    <a 
+                        href="media/${res.file}"
+                        data-lightbox="gallery1"
+                        data-title="${this.fix_html_tags(res.comment)}"
+                    >
+                        <img 
+                            src="media/${res.file}"
+                            style="width:150px;"
+                        >
+                    </a>
+                </div>
+            ` 
+            : 
+            "";
+
             const newElement = document.createElement('div');
 
             newElement.innerHTML = `
@@ -127,6 +146,7 @@
                             class="reply-btn"
                             data-bs-toggle="modal" 
                             data-bs-target="#staticBackdrop-add-comment"
+                            style="cursor: pointer;"
                         > 
                             <i class="bi bi-reply"></i> ответить 
                         </span>
@@ -134,6 +154,7 @@
 
                     <div class="card-body">
                         <p> ${this.fix_html_tags(res.comment)} </p>
+                        ${file_block}
                     </div>
                 </div>
                 `;

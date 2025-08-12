@@ -4,11 +4,11 @@
     {% include "web/modals.html" %}
 
 
-<div class="container mt-3">
-  <div class="row">
+<div class="container mt-2">
+  <div class="row d-flex justify-content-center align-items-center">
 
 
-    <div class="col-12">
+    <div class="col-12 col-sm-6 col-md-6 col-lg-6">
 
         <div class="mb-3 card my-3 p-3 text-white bg-primary bg-gradient rounded shadow-sm">
 
@@ -74,6 +74,7 @@
 
     {% endif %}
 
+    
 
 
        {% for comment in comments %}
@@ -96,6 +97,7 @@
                                 @click="answer_message({{comment.id}}, {{level}}, 0)"
                                 data-bs-toggle="modal" 
                                 data-bs-target="#staticBackdrop-add-comment"
+                                style="cursor: pointer;"
                             > 
                                 <i class="bi bi-reply"></i> ответить 
                             </span>
@@ -103,7 +105,23 @@
                         </div>
 
                         <div class="card-body">
-                            <p class="card-text" v-html="fix_html_tags('{{ comment.text }}')"></p>
+                            <p class="card-text" v-html="fix_html_tags('{{ comment.text|escapejs }}')"></p>
+
+                            {% if comment.file_path %}
+                                <div class="mt-1 mb-1">
+                                    <a 
+                                        href="media/{{comment.file_path}}"
+                                        data-lightbox="gallery1"
+                                        data-title="{{ comment.text|safe }}"
+                                    >
+                                        <img 
+                                            src="media/{{comment.file_path}}"
+                                            style="width:150px;"
+                                        >
+                                    </a>
+                                </div>
+                            {% endif %}
+
                         </div>
 
                     </div>

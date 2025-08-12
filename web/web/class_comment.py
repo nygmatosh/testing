@@ -3,8 +3,11 @@ from web.models import Users, Comment
 from time import time
 import logging
 from datetime import datetime
+from pathlib import Path
 
 from django.utils.text import get_valid_filename
+from django.http import FileResponse, Http404
+
 from web.class_rabbit_mq_sender import RMQ
 
 
@@ -99,7 +102,8 @@ class CommentControl:
                 for chunk in file.chunks():
                     destination.write(chunk)
 
-            return path
+            #return path
+            return filename
 
         except Exception as e:
             self._log(f"_save_file_on_server -> {e}")
@@ -155,3 +159,47 @@ class CommentControl:
         except Exception as e:
             self._log(f"add_comment -> {e}")
             return False
+        
+
+
+
+    def _return_image_response(self, path, ext):
+        try:
+            
+            return FileResponse(
+                open(path, 'rb'), 
+                content_type=f"image/{ext}"
+            )
+        
+        except Exception as e:
+            self._log(f"_return_image_response -> {e}")
+            return Http404("Image not found")
+
+
+
+    def get_image(self, filename):
+        try:
+
+            path = os.path.abspath(os.path.join(self._save_path, filename))
+
+            if not path.startswith(os.path.abspath(self._save_path)):
+                return Http404("Image not found")
+
+            if not os.path.exists(path):
+                return self._return_image_response(
+                    os.path.join(self._save_path, "image-not-found_.png"),
+                    "png"
+                )
+
+            return self._return_image_response(
+                path,
+                Path(path).suffix.lstrip('.')
+            )
+        
+        except Exception as e:
+            self._log(f"get_image -> {e}")
+
+            return self._return_image_response(
+                os.path.join(self._save_path, "image-not-found_.png"),
+                "png"
+            )

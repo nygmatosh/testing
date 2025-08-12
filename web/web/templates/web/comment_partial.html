@@ -21,6 +21,7 @@
             @click="answer_message({{comment.id}}, {{level}}, 1)"
             data-bs-toggle="modal" 
             data-bs-target="#staticBackdrop-add-comment"
+            style="cursor: pointer;"
          > 
             <i class="bi bi-reply"></i> ответить 
          </span>
@@ -28,7 +29,32 @@
       </div>
 
       <div class="card-body">
+
+         <div class="container my-0 mb-2">
+            <div class="border-start border-3 border-primary ps-1">
+               <small class="text-muted">
+                  {{ comment.parent.text|truncatechars:50 }}
+               </small>
+            </div>
+         </div>
+
          <p class="card-text" v-html="fix_html_tags('{{ comment.text }}')"></p>
+
+         {% if comment.file_path %}
+            <div class="mt-1 mb-1">
+               <a 
+                  href="media/{{comment.file_path}}"
+                  data-lightbox="gallery1"
+                  data-title="{{ comment.text|safe }}"
+               >
+                  <img 
+                     src="media/{{comment.file_path}}"
+                     style="width:150px;"
+                  >
+               </a>
+            </div>
+         {% endif %}
+
       </div>
 
     </div>

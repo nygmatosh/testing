@@ -22,6 +22,6 @@ class SendCommentForm(forms.Form):
         required=False,
         widget=forms.ClearableFileInput(attrs={
             'class': 'form-control form-control-sm w-100',
-            'accept': ".txt,.png,.jpg,.jpeg"
+            'accept': ".txt,.png,.jpg,.jpeg,.gif"
         })
     )
