@@ -86,6 +86,86 @@
         },
 
 
+        validate_form()
+        {
+
+            document.getElementById("username_validate").innerHTML = "";
+            document.getElementById("email_validate").innerHTML = "";
+            document.getElementById("captcha_validate").innerHTML = "";
+            document.getElementById("site_validate").innerHTML = "";
+            document.getElementById("comment_validate").innerHTML = "";            
+
+
+            const form = document.getElementById("send_comment_form");
+            let errors = 0;
+
+            const username = form.elements['username'].value.trim();
+            const email = form.elements['email'].value.trim();
+            const site = form.elements['home_page'].value.trim();
+            const captcha = form.elements['captcha_1'].value.trim();
+            const comment = form.elements['comment'].value.trim();
+
+
+            if (username.length < 3)
+            {
+                document.getElementById("username_validate").innerHTML = `Длина поля должна быть минимум 3 символа`;
+                errors += 1;
+            }
+
+            if (email.length == 0)
+            {
+                document.getElementById("email_validate").innerHTML = `Поле обязательно к заполнению`;
+                errors += 1;
+
+            } else {
+
+                const email_pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                if (!email_pattern.test(email))
+                {
+                    document.getElementById("email_validate").innerHTML = `Email не обнаружен`;
+                    errors += 1;
+                }
+            }
+
+            if (captcha.length < 4)
+            {
+                document.getElementById("captcha_validate").innerHTML = `Ответ должен состоять из 4 символов!`;
+                errors += 1;
+            }
+
+            if (site.length == 0)
+            {
+
+                document.getElementById("site_validate").innerHTML = `Поле обязательно к заполнению`;
+                errors += 1;
+
+            } else {
+
+                const url_pattern = /^(https?:\/\/)([a-z0-9-]+\.)+[a-z]{2,}(\/[^\s]*)?$/i;
+
+                if (!url_pattern.test(site))
+                {
+                    document.getElementById("site_validate").innerHTML = `Введено неверное значение`;
+                    errors += 1;
+                }
+
+            }
+
+
+            if (comment.length == 0)
+            {
+                document.getElementById("comment_validate").innerHTML = `Поле обязательно к заполнению`;
+                errors += 1;
+            }
+
+
+            return errors === 0;
+
+
+        },
+
+
         
         make_html_block_for_new_comment(res)
         {
@@ -187,31 +267,38 @@
 
         async submitForm()
         {
-            const form = new FormData(document.getElementById('send_comment_form'));
+            const validate = this.validate_form();
 
-            document.getElementById('send_comment_form_response').innerHTML = `
-                <span class="text-success">
-                    <span class="spinner-grow spinner-grow-sm me-1" role="status" aria-hidden="true"></span>
-                    Ожидайте...
-                </span>
-            `;
+            if (validate)
+            {
 
-            let response = await fetch(
-                'send/', {
-                    method: 'POST',
-                    body: form
-                }
-            );
+                const form = new FormData(document.getElementById('send_comment_form'));
 
-            let res = await response.json();
+                document.getElementById('send_comment_form_response').innerHTML = `
+                    <span class="text-success">
+                        <span class="spinner-grow spinner-grow-sm me-1" role="status" aria-hidden="true"></span>
+                        Ожидайте...
+                    </span>
+                `;
 
-            const icon = this.response_status_icon(res);
+                let response = await fetch(
+                    'send/', {
+                        method: 'POST',
+                        body: form
+                    }
+                );
 
-            document.getElementById('send_comment_form_response').innerHTML = `
-                <span class="text-info"> 
-                    ${icon} ${res.message} 
-                </span>
-            `;
+                let res = await response.json();
+
+                const icon = this.response_status_icon(res);
+
+                document.getElementById('send_comment_form_response').innerHTML = `
+                    <span class="text-info"> 
+                        ${icon} ${res.message} 
+                    </span>
+                `;
+
+            }
 
         },
 
@@ -233,8 +320,11 @@
 
         cancel_answer()
         {
+            
             this.message_id = 0;
             this.message_com_id = "";
+
+            document.getElementById("send_comment_form_response").innerHTML = "";
         },
 
 
