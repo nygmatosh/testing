@@ -219,7 +219,7 @@
 
             newElement.innerHTML = `
                 <div class="card mb-2">
-                    <div class="card-header bg-${this.message_id == 0 ? 'warning' : 'info'}">
+                    <div class="card-header bg-${this.message_id == 0 ? 'info-subtle' : 'info'}">
                         <span class="me-2">
                             <i class="bi bi-person-circle me-1"></i>
                             <strong>${res.user}</strong> 
