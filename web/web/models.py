@@ -6,6 +6,7 @@ class Comment(models.Model):
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     file_path = models.CharField(max_length=255, default="")
+    filetype = models.CharField(max_length=255, default="")
 
     parent = models.ForeignKey(
         'self',

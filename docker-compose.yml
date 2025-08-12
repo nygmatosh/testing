@@ -15,6 +15,11 @@ services:
         ipv4_address: "172.22.0.11"
     environment:
       - HOST_IP=${HOST_IP}
+      - RABBIT_HOST=172.22.0.9
+      - RABBIT_USER=root
+      - RABBIT_PASS=root1234
+      - RABBIT_PORT=5672
+      - RABBIT_QUEUE=comments_queue
     depends_on:
       - rabbit-mq
       
@@ -30,6 +35,12 @@ services:
       - "8001:8001/tcp"
     volumes:
       - ./web/:/usr/src/app/web/
+    environment:
+      - RABBIT_HOST=172.22.0.9
+      - RABBIT_USER=root
+      - RABBIT_PASS=root1234
+      - RABBIT_PORT=5672
+      - RABBIT_QUEUE=comments_queue
     networks:
       autod_aster_3:
         ipv4_address: "172.22.0.10"
@@ -74,7 +85,5 @@ networks:
 
 
 volumes:
-  #fs_dbdata:
-  #  driver: local
   rabbitmq_data:
     driver: local

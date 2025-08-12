@@ -37,7 +37,7 @@ def send(request):
 
         if form.is_valid():
 
-            add = CommentControl().add_comment(request)
+            add = CommentControl().add_comment(form, request)
             
             if add:
                 return JsonResponse({"message": "Выполняется обработка комментария", "status": "allow"})

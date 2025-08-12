@@ -10,6 +10,8 @@
 
     <div class="col-12 col-sm-6 col-md-6 col-lg-6">
 
+        <div id="ws_status" class="mb-1 mt-1"></div>
+
         <div class="mb-3 card my-3 p-3 text-white bg-primary bg-gradient rounded shadow-sm">
 
             <div class="mb-2">
@@ -108,18 +110,34 @@
                             <p class="card-text" v-html="fix_html_tags('{{ comment.text|escapejs }}')"></p>
 
                             {% if comment.file_path %}
-                                <div class="mt-1 mb-1">
-                                    <a 
-                                        href="media/{{comment.file_path}}"
-                                        data-lightbox="gallery1"
-                                        data-title="{{ comment.text|safe }}"
-                                    >
-                                        <img 
-                                            src="media/{{comment.file_path}}"
-                                            style="width:150px;"
+                                {% if comment.filetype == "txt" %}
+
+                                    <div class="mt-1 mb-1">
+                                        <i class="bi bi-paperclip me-2"></i>
+                                        <a 
+                                            href="media/{{comment.file_path}}"
+                                            target="_blank"
+                                        > 
+                                            {{comment.file_path}}
+                                        </a>
+                                    </div>
+
+                                    {% else %}
+                                    <div class="mt-1 mb-1">
+                                        <a 
+                                            href="media/{{comment.file_path}}"
+                                            data-lightbox="gallery1"
+                                            data-title="{{ comment.text|safe }}"
                                         >
-                                    </a>
-                                </div>
+                                            <img 
+                                                src="media/{{comment.file_path}}"
+                                                style="width:150px;"
+                                            >
+                                        </a>
+                                    </div>
+
+
+                                {% endif %}
                             {% endif %}
 
                         </div>

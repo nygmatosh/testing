@@ -22,6 +22,7 @@ class CommentControl:
     def __init__(self):
         self._save_path = "/usr/src/app/web/web/static/web/files/"
         self._MAX_FILE_SIZE = 1 * 1024 * 1024
+        self._MAX_FILE_SIZE_TXT = 100 * 1024
         self._rabbit = RMQ()
         self._logger = logging.getLogger(__name__)
 
@@ -72,14 +73,21 @@ class CommentControl:
 
 
 
-    def _post_data(self, request):
+    def _post_data(self, form, request):
+
+        answer_id = request.POST.get("answer_id", 0)
+        answer_id = int(answer_id) if answer_id.isdigit() else 0
+
+        ws_user = request.POST.get("ws_user", "")
+        ws_user = ws_user if ws_user.startswith("user_ws_") else ""
+
         return {
-            "username": request.POST.get("username"),
-            "home_page": request.POST.get("home_page"),
-            "email": request.POST.get("email"),
-            "comment": request.POST.get("comment"),
-            "answer_id": request.POST.get("answer_id"),
-            "ws_user": request.POST.get("ws_user"),
+            "username": form.cleaned_data["username"],
+            "home_page": form.cleaned_data["home_page"],
+            "email": form.cleaned_data["email"],
+            "comment": form.cleaned_data["comment"],
+            "answer_id": answer_id,
+            "ws_user": ws_user,
             "file": request.FILES.get("file")
         }
         
@@ -90,24 +98,32 @@ class CommentControl:
 
             timestamp = int(time())
             filename = f"{timestamp}_{get_valid_filename(file.name)}"
-            os.makedirs(self._save_path, exist_ok=True)
 
-            if file.size > self._MAX_FILE_SIZE:
-                self._log(f"_save_file_on_server -> размер файла {filename} превышает лимит {self._MAX_FILE_SIZE}")
-                return False
-            
+            os.makedirs(self._save_path, exist_ok=True)            
             path = os.path.join(self._save_path, filename)
+
+            filetype = Path(path).suffix.lstrip('.').lower()
+            limit = self._MAX_FILE_SIZE_TXT if filetype == "txt" else self._MAX_FILE_SIZE
+
+            if file.size > limit:
+                self._log(f"_save_file_on_server -> размер файла {filename} превышает лимит {self._MAX_FILE_SIZE_TXT}")
+                return False
 
             with open(path, 'wb+') as destination:
                 for chunk in file.chunks():
                     destination.write(chunk)
 
             #return path
-            return filename
+            #return filename
+        
+            return {
+                "filename": filename,
+                "filetype": filetype
+            }
 
         except Exception as e:
             self._log(f"_save_file_on_server -> {e}")
-            return ""
+            return {}
 
 
 
@@ -124,11 +140,11 @@ class CommentControl:
 
 
 
-    def add_comment(self, request) -> bool:
+    def add_comment(self, form, request) -> bool:
         try:
 
-            data = self._post_data(request)
-            path = ""
+            data = self._post_data(form, request)
+            path = {}
 
             username = data.get("username")
             comment = data.get("comment")
@@ -148,7 +164,8 @@ class CommentControl:
             self._rabbit.send({
                 "user": username,
                 "comment": comment,
-                "file": path,
+                "file": path.get("filename", ""),
+                "filetype": path.get("filetype", ""),
                 "answer_id": answer_id,
                 "ws_user": data.get("ws_user")
             })
@@ -173,7 +190,7 @@ class CommentControl:
         
         except Exception as e:
             self._log(f"_return_image_response -> {e}")
-            return Http404("Image not found")
+            raise Http404("Image not found")
 
 
 
@@ -183,7 +200,7 @@ class CommentControl:
             path = os.path.abspath(os.path.join(self._save_path, filename))
 
             if not path.startswith(os.path.abspath(self._save_path)):
-                return Http404("Image not found")
+                raise Http404("Image not found")
 
             if not os.path.exists(path):
                 return self._return_image_response(

@@ -22,7 +22,7 @@
         const socket = new WebSocket(`ws://${location.host}:8001/?username=${this.ws_user}`);
 
         socket.onopen = () => {
-            console.log('WS connected');
+            document.getElementById("ws_status").innerText = "WS connected";
         };
 
         socket.onmessage = (event) => {
@@ -52,10 +52,11 @@
 
         socket.onerror = (error) => {
             console.error('WS error', error);
+            document.getElementById("ws_status").innerText = "WS error";
         };
 
         socket.onclose = () => {
-            console.log('WS disconnected');
+            document.getElementById("ws_status").innerText = "WS disconnected";
         };
 
     },
@@ -78,22 +79,6 @@
 
     methods: {
 
-       getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let cookie of cookies) {
-                    cookie = cookie.trim();
-                    if (cookie.startsWith(name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        },
-
-
 
         response_status_icon(res)
         {
@@ -108,25 +93,47 @@
             const id_block = this.message_id > 0 ? this.message_com_id : `added_new_comment`;
             const new_block_id = this.message_id > 0 ? `sub_comment_${comment_id}` : `comment_${comment_id}`;
             const root_block = document.getElementById(id_block);
+            const filetype = res.filetype;
 
-            const file_block = res.file.length > 0 
-            ? 
-            `
-                <div class="mt-1 mb-1">
-                    <a 
-                        href="media/${res.file}"
-                        data-lightbox="gallery1"
-                        data-title="${this.fix_html_tags(res.comment)}"
-                    >
-                        <img 
-                            src="media/${res.file}"
-                            style="width:150px;"
-                        >
-                    </a>
-                </div>
-            ` 
-            : 
-            "";
+            let file_block = '';
+
+            if (res.file.length > 0 )
+            {
+                if (filetype == "txt")
+                {
+
+                    file_block = `
+                        <div class="mt-1 mb-1">
+                            <i class="bi bi-paperclip me-2"></i>
+                            <a 
+                                href="media/${res.file}"
+                                target="_blank"
+                            > 
+                                ${res.file} 
+                            </a>
+                        </div>
+                    `;
+
+                } else {
+
+                    file_block = `
+                        <div class="mt-1 mb-1">
+                            <a 
+                                href="media/${res.file}"
+                                data-lightbox="gallery1"
+                                data-title="${this.fix_html_tags(res.comment)}"
+                            >
+                                <img 
+                                    src="media/${res.file}"
+                                    style="width:150px;"
+                                >
+                            </a>
+                        </div>
+                    `;
+
+                }
+            }
+
 
             const newElement = document.createElement('div');
 

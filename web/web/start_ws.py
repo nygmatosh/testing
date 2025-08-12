@@ -23,10 +23,11 @@ logging.basicConfig(
 
 class WS:
     def __init__(self):
-        self._host = "172.22.0.9"
-        self._user = "root"
-        self._password = "root1234"
-        self._queue_name = "comments_queue"
+        self._host = os.getenv('RABBIT_HOST', '127.0.0.1')
+        self._port = int(os.getenv('RABBIT_PORT', '5672'))
+        self._user = os.getenv('RABBIT_USER', 'root')
+        self._password = os.getenv('RABBIT_PASS', 'root1234')
+        self._queue_name = os.getenv('RABBIT_QUEUE', 'comments_queue')
         self._connected_clients = {}
         self._logger = logging.getLogger(__name__)
 
@@ -126,6 +127,7 @@ class WS:
             ws_user = data.get("ws_user")
             comment = data.get("comment")
             file = data.get("file")
+            filetype = data.get("filetype", "")
             answer_id = data.get("answer_id")
             parent = None if answer_id == 0 else await self._find_comment_with_id(answer_id)
 
@@ -138,6 +140,7 @@ class WS:
                         user=web_user,
                         text=comment,
                         file_path=file,
+                        filetype=filetype,
                         parent=parent
                     )
 
@@ -158,6 +161,7 @@ class WS:
                 "comment": comment or "",
                 "ws_user": ws_user or "",
                 "file": file,
+                "filetype": filetype,
                 "status": "allow" if add else "deny"
             }
 

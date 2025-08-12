@@ -15,11 +15,11 @@ logging.basicConfig(
 
 class RMQ:
     def __init__(self):
-        self._host = os.getenv('RabbitMQ_IP', '172.22.0.9')
-        self._port = 5672
-        self._user = "root"
-        self._password = "root1234"
-        self._queue_name = "comments_queue"
+        self._host = os.getenv('RABBIT_HOST', '127.0.0.1')
+        self._port = int(os.getenv('RABBIT_PORT', '5672'))
+        self._user = os.getenv('RABBIT_USER', 'root')
+        self._password = os.getenv('RABBIT_PASS', 'root1234')
+        self._queue_name = os.getenv('RABBIT_QUEUE', 'comments_queue')
         self._credentials = None
         self._connection = None
         self._channel = None
