@@ -32,8 +32,10 @@
 
          <div class="container my-0 mb-2">
             <div class="border-start border-3 border-primary ps-1">
-               <small class="text-muted">
-                  {{ comment.parent.text|truncatechars:50 }}
+               <small
+                  class="text-muted" 
+                  v-html="fix_html_tags('{{ comment.parent.text|truncatechars:50 }}')"
+               >
                </small>
             </div>
          </div>

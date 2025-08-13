@@ -23,6 +23,16 @@
       </div>
 
       <div class="modal-body">
+
+
+        <button
+          @click="updCaptcha()"
+          class="btn btn-sm btn-success mb-2"
+        > 
+          <i class="bi bi-arrow-clockwise me-2"></i> Обновить капчу
+        </button>
+
+
         <form 
             method="POST"
             @submit.prevent="submitForm"

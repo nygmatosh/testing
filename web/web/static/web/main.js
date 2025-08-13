@@ -22,7 +22,7 @@
         const socket = new WebSocket(`ws://${location.host}:8001/?username=${this.ws_user}`);
 
         socket.onopen = () => {
-            document.getElementById("ws_status").innerText = "WS connected";
+            document.getElementById("ws_status").innerText = "🟢 WS connected";
         };
 
         socket.onmessage = (event) => {
@@ -52,11 +52,11 @@
 
         socket.onerror = (error) => {
             console.error('WS error', error);
-            document.getElementById("ws_status").innerText = "WS error";
+            document.getElementById("ws_status").innerText = "🔴 WS error";
         };
 
         socket.onclose = () => {
-            document.getElementById("ws_status").innerText = "WS disconnected";
+            document.getElementById("ws_status").innerText = "🔴 WS disconnected";
         };
 
     },
@@ -78,6 +78,18 @@
 
 
     methods: {
+
+        async updCaptcha() {
+
+            const form = document.getElementById("send_comment_form");
+
+            fetch('refresh/')
+                .then(res => res.json())
+                .then(data => {
+                    document.querySelector('.captcha').src = data.url;
+                    document.getElementById('id_captcha_0').value = data.key;
+                });
+        },
 
 
         response_status_icon(res)
@@ -289,6 +301,7 @@
                 );
 
                 let res = await response.json();
+                this.updCaptcha();
 
                 const icon = this.response_status_icon(res);
 

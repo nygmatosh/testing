@@ -4,6 +4,7 @@ from django.http import JsonResponse
 
 from web.forms import SendCommentForm
 from web.class_comment import CommentControl
+from web.class_captcha_refresh import Refresh
 from django.core.paginator import Paginator
 from web.models import *
 
@@ -34,20 +35,21 @@ def send(request):
     if request.method == 'POST':
 
         form = SendCommentForm(request.POST)
+        add = CommentControl()
 
         if form.is_valid():
 
-            add = CommentControl().add_comment(form, request)
-            
-            if add:
-                return JsonResponse({"message": "Выполняется обработка комментария", "status": "allow"})
+            return add.add_comment(form, request)
             
         return JsonResponse({"message": "Форма невалидна...", "status": "deny"})
 
-    return JsonResponse({"message": "Hello", "status": "allow"})
 
 
 
+def get_file(request, filename):
+    return CommentControl().get_file(filename)
 
-def get_img(request, filename):
-    return CommentControl().get_image(filename)
+
+
+def new_captcha(request):
+    return Refresh().run()

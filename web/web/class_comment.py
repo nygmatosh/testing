@@ -7,6 +7,7 @@ from pathlib import Path
 
 from django.utils.text import get_valid_filename
 from django.http import FileResponse, Http404
+from django.http import JsonResponse
 
 from web.class_rabbit_mq_sender import RMQ
 
@@ -23,6 +24,7 @@ class CommentControl:
         self._save_path = "/usr/src/app/web/web/static/web/files/"
         self._MAX_FILE_SIZE = 1 * 1024 * 1024
         self._MAX_FILE_SIZE_TXT = 100 * 1024
+        self._extensions = ["txt", "png", "jpg", "jpeg", "gif"]
         self._rabbit = RMQ()
         self._logger = logging.getLogger(__name__)
 
@@ -30,6 +32,7 @@ class CommentControl:
 
     def _log(self, text):
         self._logger.error(f"{self.__class__.__name__}: {text}")
+
 
 
 
@@ -54,6 +57,7 @@ class CommentControl:
             self._log(f"_if_exists_user -> {e}")
             return False
         
+
 
 
     def _save_user_in_model(self, data):
@@ -93,6 +97,7 @@ class CommentControl:
         
 
 
+
     def _save_file_on_server(self, file):
         try:
 
@@ -104,17 +109,18 @@ class CommentControl:
 
             filetype = Path(path).suffix.lstrip('.').lower()
             limit = self._MAX_FILE_SIZE_TXT if filetype == "txt" else self._MAX_FILE_SIZE
+            
+            if not filetype in self._extensions:
+                self._log(f"_save_file_on_server -> {filename} недопустимый файл")
+                return JsonResponse({"message": "Это не текстовый документ и не изображение нужного типа", "status": "deny"})
 
             if file.size > limit:
                 self._log(f"_save_file_on_server -> размер файла {filename} превышает лимит {self._MAX_FILE_SIZE_TXT}")
-                return False
+                return JsonResponse({"message": "Файл превышает допустимый размер", "status": "deny"})
 
             with open(path, 'wb+') as destination:
                 for chunk in file.chunks():
                     destination.write(chunk)
-
-            #return path
-            #return filename
         
             return {
                 "filename": filename,
@@ -124,6 +130,23 @@ class CommentControl:
         except Exception as e:
             self._log(f"_save_file_on_server -> {e}")
             return {}
+        
+
+
+
+
+    def _return_image_response(self, path, ext):
+        try:
+            
+            return FileResponse(
+                open(path, 'rb'), 
+                content_type=f"image/{ext}"
+            )
+        
+        except Exception as e:
+            self._log(f"_return_image_response -> {e}")
+            return JsonResponse({"message": "Изображение не найдено...", "status": "deny"})
+
 
 
 
@@ -159,7 +182,7 @@ class CommentControl:
 
             if not username or not comment:
                 self._log(f"add_comment -> данные не пришли")
-                return False
+                return JsonResponse({"message": "Недостаточно данных для обработки запроса", "status": "deny"})
         
             self._rabbit.send({
                 "user": username,
@@ -170,53 +193,37 @@ class CommentControl:
                 "ws_user": data.get("ws_user")
             })
 
-            return True
+            return JsonResponse({"message": "Выполняется обработка комментария", "status": "allow"})
 
         
         except Exception as e:
             self._log(f"add_comment -> {e}")
-            return False
+            return JsonResponse({"message": "Внутренняя ошибка при добавлении комментария", "status": "deny"})
         
 
 
 
-    def _return_image_response(self, path, ext):
-        try:
-            
-            return FileResponse(
-                open(path, 'rb'), 
-                content_type=f"image/{ext}"
-            )
-        
-        except Exception as e:
-            self._log(f"_return_image_response -> {e}")
-            raise Http404("Image not found")
 
 
+    def get_file(self, filename):
 
-    def get_image(self, filename):
+        path_image_not_found = os.path.join(self._save_path, "image-not-found_.png")
+
         try:
 
             path = os.path.abspath(os.path.join(self._save_path, filename))
+            ext = Path(path).suffix.lstrip('.')
 
             if not path.startswith(os.path.abspath(self._save_path)):
-                raise Http404("Image not found")
+                return JsonResponse({"message": "Ошибка при поиске файла", "status": "deny"})
 
             if not os.path.exists(path):
-                return self._return_image_response(
-                    os.path.join(self._save_path, "image-not-found_.png"),
-                    "png"
-                )
+                if ext == "txt":
+                    return JsonResponse({"message": "File not found", "status": "deny"})
+                return self._return_image_response(path_image_not_found, "png")
 
-            return self._return_image_response(
-                path,
-                Path(path).suffix.lstrip('.')
-            )
+            return self._return_image_response(path, ext)
         
         except Exception as e:
             self._log(f"get_image -> {e}")
-
-            return self._return_image_response(
-                os.path.join(self._save_path, "image-not-found_.png"),
-                "png"
-            )
+            return self._return_image_response(path_image_not_found, "png")

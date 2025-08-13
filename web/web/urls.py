@@ -8,6 +8,7 @@ urlpatterns = [
     #path('admin/', admin.site.urls),
     url('^$', views.index, name='index'),
     url('^send/', views.send, name='send'),
-    path("media/<str:filename>/", views.get_img, name='get_img'),
+    path("media/<str:filename>/", views.get_file, name='get_file'),
+    url('^refresh/', views.new_captcha, name='new_captcha'),
     path('captcha/', include('captcha.urls'))
 ]
