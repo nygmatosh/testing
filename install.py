@@ -202,4 +202,9 @@ class StartProject:
                 self._up_d_docker_project()
                 self._flag_first_install()
             else:
-                print("Сбока приостановлена из-за ошибок, посмотрите лог файл")
+                print("Сборка приостановлена из-за ошибок, посмотрите лог файл")
+
+
+
+project = StartProject()
+project.run()
